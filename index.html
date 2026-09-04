@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Shop Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-pink-50/50 text-slate-800 pb-16">
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 right-4 left-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <div id="app" class="max-w-md mx-auto p-4">
+        <!-- Header Info -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-pink-100 mb-4 flex justify-between items-center">
+            <div>
+                <p class="text-xs text-slate-400">Telegram ID: <span id="lbl-id" class="font-bold text-slate-600">...</span></p>
+                <p class="text-lg font-extrabold text-pink-600"><span id="lbl-balance">0</span> VNĐ</p>
+            </div>
+            <button id="btn-admin-tab" onclick="switchTab('admin')" class="hidden bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-md shadow-pink-200 hover:opacity-90 transition">🛡️ Admin Panel</button>
+        </div>
+
+        <!-- Navigation Tabs (Nền hồng nhạt, nút bấm hồng) -->
+        <div class="flex bg-pink-100/70 rounded-2xl shadow-sm mb-4 p-1 text-sm font-medium text-center">
+            <button onclick="switchTab('shop')" class="flex-1 py-2 rounded-xl bg-white text-pink-600 font-bold shadow-sm transition" id="tab-shop">Sản phẩm</button>
+            <button onclick="switchTab('deposit')" class="flex-1 py-2 rounded-xl text-slate-600 hover:text-pink-600 transition" id="tab-deposit">Nạp tiền</button>
+            <button onclick="switchTab('history')" class="flex-1 py-2 rounded-xl text-slate-600 hover:text-pink-600 transition" id="tab-history">Đã mua</button>
+        </div>
+
+        <!-- Tab: Shop -->
+        <div id="section-shop" class="space-y-3">
+            <div id="product-list" class="space-y-3"></div>
+        </div>
+
+        <!-- Tab: Deposit -->
+        <div id="section-deposit" class="hidden space-y-4 bg-white p-4 rounded-2xl shadow-sm border border-pink-100">
+            <h2 class="font-bold text-base text-pink-600">💖 Nạp tiền vào tài khoản</h2>
+            <div class="text-center bg-pink-50/50 p-3 rounded-xl border border-pink-100">
+                <img id="bank-qr-img" src="" alt="Chưa cấu hình QR" class="mx-auto w-48 h-48 object-cover rounded-lg border border-pink-200 mb-2 bg-white">
+                <p class="text-xs text-slate-500">Quét mã QR để chuyển khoản. Nội dung chuyển khoản: <b id="transfer-syntax" class="text-pink-600 font-mono">NAP [ID]</b></p>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1 text-slate-600">Số tiền đã chuyển (VNĐ):</label>
+                <input type="number" id="deposit-amount" class="w-full border border-pink-200 rounded-xl p-2.5 text-sm bg-pink-50/30 focus:bg-white focus:ring-2 focus:ring-pink-400 outline-none transition" placeholder="Nhập số tiền...">
+            </div>
+            <button onclick="requestDeposit()" class="w-full bg-pink-600 hover:bg-pink-700 text-white py-2.5 rounded-xl font-semibold text-sm shadow-md shadow-pink-200 transition">Gửi yêu cầu nạp tiền</button>
+        </div>
+
+        <!-- Tab: History -->
+        <div id="section-history" class="hidden space-y-3">
+            <div id="order-list" class="space-y-2"></div>
+        </div>
+
+        <!-- Tab: Admin Panel -->
+        <div id="section-admin" class="hidden space-y-4 bg-white p-4 rounded-2xl shadow-sm border border-pink-100">
+            <h2 class="font-bold text-pink-600 text-base border-b border-pink-100 pb-2">🛠️ Bảng điều khiển Quản Trị Viên</h2>
+            
+            <!-- Cài đặt QR Bank -->
+            <div class="space-y-2 border-b border-pink-100 pb-3">
+                <p class="text-xs font-bold text-slate-700">🖼️ Cài đặt Link Ảnh QR Ngân Hàng</p>
+                <input type="text" id="admin-bank-url" class="w-full border border-pink-200 rounded-xl p-2 text-xs outline-none focus:ring-1 focus:ring-pink-400" placeholder="Dán link ảnh QR vào đây...">
+                <button onclick="updateBankQR()" class="bg-pink-600 hover:bg-pink-700 text-white text-xs px-3 py-1.5 rounded-xl shadow-sm transition">Lưu Ảnh QR</button>
+            </div>
+
+            <!-- Duyệt nạp tiền -->
+            <div class="space-y-2 border-b border-pink-100 pb-3">
+                <p class="text-xs font-bold text-slate-700">💰 Yêu cầu nạp tiền chờ duyệt trên Web</p>
+                <div id="admin-deposit-list" class="space-y-2 text-xs max-h-40 overflow-y-auto"></div>
+            </div>
+
+            <!-- Cộng tiền User -->
+            <div class="space-y-2 border-b border-pink-100 pb-3">
+                <p class="text-xs font-bold text-slate-700">➕ Cộng tiền thủ công cho User</p>
+                <input type="number" id="adm-user-id" class="w-full border border-pink-200 rounded-xl p-2 text-xs outline-none focus:ring-1 focus:ring-pink-400" placeholder="Telegram ID">
+                <input type="number" id="adm-user-amount" class="w-full border border-pink-200 rounded-xl p-2 text-xs outline-none focus:ring-1 focus:ring-pink-400" placeholder="Số tiền cộng (VNĐ)">
+                <button onclick="adminAddBalance()" class="bg-pink-600 hover:bg-pink-700 text-white text-xs px-3 py-1.5 rounded-xl shadow-sm transition">Cộng tiền ngay</button>
+            </div>
+
+            <!-- Quản lý Sản phẩm -->
+            <div class="space-y-2">
+                <p class="text-xs font-bold text-slate-700">📦 Thêm sản phẩm mới</p>
+                <input type="text" id="adm-prod-name" class="w-full border border-pink-200 rounded-xl p-2 text-xs outline-none focus:ring-1 focus:ring-pink-400" placeholder="Tên sản phẩm">
+                <input type="number" id="adm-prod-price" class="w-full border border-pink-200 rounded-xl p-2 text-xs outline-none focus:ring-1 focus:ring-pink-400" placeholder="Giá tiền (VNĐ)">
+                <textarea id="adm-prod-desc" class="w-full border border-pink-200 rounded-xl p-2 text-xs outline-none focus:ring-1 focus:ring-pink-400" placeholder="Mô tả sản phẩm"></textarea>
+                <button onclick="adminAddProduct()" class="bg-pink-600 hover:bg-pink-700 text-white text-xs px-3 py-1.5 rounded-xl shadow-sm transition">Tạo sản phẩm</button>
+            </div>
+
+            <div id="admin-product-management" class="space-y-3 pt-3 border-t border-pink-100 max-h-96 overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const telegramId = tg.initDataUnsafe?.user?.id || urlParams.get('id') || 123456789;
+
+        document.getElementById('lbl-id').innerText = telegramId;
+        document.getElementById('transfer-syntax').innerText = `NAP ${telegramId}`;
+
+        let currentUser = {};
+        let adminNotified = false;
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgColors = 'bg-gradient-to-r from-pink-500 to-rose-500 text-white';
+            let icon = '💖';
+            if(type === 'error') {
+                bgColors = 'bg-gradient-to-r from-rose-500 to-red-600 text-white';
+                icon = '⚠️';
+            } else if(type === 'admin') {
+                bgColors = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white';
+                icon = '🛡️';
+            }
+
+            toast.className = `pointer-events-auto ${bgColors} px-4 py-3 rounded-2xl shadow-lg flex items-center space-x-3 transform translate-y-[-20px] opacity-0 transition-all duration-300 ease-out`;
+            toast.innerHTML = `<span class="text-xl">${icon}</span> <div class="text-xs font-medium leading-relaxed">${message}</div>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-[-20px]', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-[-20px]', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        async function initData() {
+            const res = await fetch(`/api/user/${telegramId}`);
+            currentUser = await res.json();
+            document.getElementById('lbl-balance').innerText = currentUser.balance.toLocaleString();
+            if (currentUser.isAdmin) {
+                document.getElementById('btn-admin-tab').classList.remove('hidden');
+                loadAdminData();
+            }
+            loadProducts();
+            loadSettings();
+        }
+
+        async function loadProducts() {
+            const res = await fetch('/api/products');
+            const products = await res.json();
+            const list = document.getElementById('product-list');
+            list.innerHTML = products.map(p => `
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-pink-100 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-700">${p.name}</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">${p.description || ''}</p>
+                        <p class="text-xs font-bold text-pink-600 mt-1">${p.price.toLocaleString()} VNĐ <span class="text-slate-400 font-normal">| Kho: ${p.stock}</span></p>
+                    </div>
+                    <button onclick="buyProduct(${p.id})" class="bg-pink-50 hover:bg-pink-600 text-pink-600 hover:text-white text-xs px-4 py-2 rounded-xl font-semibold border border-pink-200 transition">Mua</button>
+                </div>
+            `).join('');
+        }
+
+        async function buyProduct(productId) {
+            if(!confirm('Bạn có chắc chắn muốn mua sản phẩm này?')) return;
+            const res = await fetch('/api/buy', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ telegram_id: telegramId, product_id: productId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast('Mua hàng thành công! Key đã được gửi về chat bot Telegram của bạn.');
+                initData();
+            } else {
+                showToast(data.message, 'error');
+            }
+        }
+
+        async function loadSettings() {
+            const res = await fetch('/api/settings');
+            const settings = await res.json();
+            if(settings.bank_qr) {
+                document.getElementById('bank-qr-img').src = settings.bank_qr;
+                document.getElementById('admin-bank-url').value = settings.bank_qr;
+            }
+        }
+
+        async function requestDeposit() {
+            const amount = document.getElementById('deposit-amount').value;
+            if(!amount || amount <= 0) return showToast('Vui lòng nhập số tiền hợp lệ!', 'error');
+            await fetch('/api/deposit', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ telegram_id: telegramId, amount: Number(amount) })
+            });
+            showToast('Đã gửi yêu cầu nạp tiền! Bot Telegram đã gửi thông báo đến Admin để duyệt.');
+            document.getElementById('deposit-amount').value = '';
+        }
+
+        async function loadHistory() {
+            const res = await fetch(`/api/orders/${telegramId}`);
+            const orders = await res.json();
+            document.getElementById('order-list').innerHTML = orders.length === 0 ? '<p class="text-center text-xs text-slate-400 py-4">Chưa có lịch sử mua hàng nào.</p>' : orders.map(o => `
+                <div class="bg-white p-3 rounded-2xl shadow-sm border border-pink-100 text-xs space-y-1">
+                    <div class="flex justify-between font-bold">
+                        <span class="text-slate-700">${o.product_name}</span>
+                        <span class="text-pink-600">${o.price.toLocaleString()} VNĐ</span>
+                    </div>
+                    <p class="text-slate-500">Key: <code class="bg-pink-50 text-pink-700 px-1.5 py-0.5 rounded border border-pink-100 select-all font-mono">${o.key_content}</code></p>
+                    <p class="text-[10px] text-slate-400">${o.created_at}</p>
+                </div>
+            `).join('');
+        }
+
+        // --- ADMIN FUNCTIONS ---
+        async function loadAdminData() {
+            const resDep = await fetch('/api/admin/deposits');
+            const deps = await resDep.json();
+            document.getElementById('admin-deposit-list').innerHTML = deps.length === 0 ? '<p class="text-slate-400 italic">Không có yêu cầu nào chờ duyệt.</p>' : deps.map(d => `
+                <div class="flex justify-between items-center bg-pink-50/50 p-2 rounded-xl border border-pink-100">
+                    <span>ID: <b>${d.telegram_id}</b> - <b class="text-pink-600">${d.amount.toLocaleString()} VNĐ</b></span>
+                    <button onclick="approveDeposit(${d.id}, ${d.telegram_id}, ${d.amount})" class="bg-pink-600 hover:bg-pink-700 text-white px-2.5 py-1 rounded-lg transition">Duyệt</button>
+                </div>
+            `).join('');
+
+            const resProd = await fetch('/api/products');
+            const prods = await resProd.json();
+            document.getElementById('admin-product-management').innerHTML = `
+                <p class="text-xs font-bold text-slate-700">📦 Quản lý kho Key sản phẩm</p>
+                ${prods.map(p => `
+                    <div class="bg-pink-50/40 p-3 rounded-xl border border-pink-100 text-xs space-y-2">
+                        <div class="flex justify-between font-bold items-center">
+                            <span class="text-pink-600">${p.name} (Còn lại: ${p.stock})</span>
+                            <button onclick="deleteProduct(${p.id})" class="text-rose-500 hover:underline">Xoá SP</button>
+                        </div>
+                        <textarea id="keys-input-${p.id}" class="w-full border border-pink-200 rounded-xl p-2 bg-white outline-none focus:ring-1 focus:ring-pink-400" placeholder="Thêm danh sách key (mỗi dòng 1 key)..."></textarea>
+                        <button onclick="addKeys(${p.id})" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-1.5 rounded-xl transition">Thêm Key vào Kho</button>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        async function approveDeposit(id, telegramId, amount) {
+            await fetch('/api/admin/deposit/approve', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ deposit_id: id, telegram_id: telegramId, amount: amount })
+            });
+            showToast('Đã duyệt nạp tiền và cộng số dư thành công!');
+            loadAdminData();
+        }
+
+        async function adminAddBalance() {
+            const uid = document.getElementById('adm-user-id').value;
+            const amt = document.getElementById('adm-user-amount').value;
+            if(!uid || !amt) return showToast('Vui lòng điền đầy đủ ID và số tiền!', 'error');
+            await fetch('/api/admin/add-balance', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ telegram_id: Number(uid), amount: Number(amt) })
+            });
+            showToast(`Đã cộng thành công ${Number(amt).toLocaleString()} VNĐ cho user ${uid}!`);
+            document.getElementById('adm-user-id').value = '';
+            document.getElementById('adm-user-amount').value = '';
+        }
+
+        async function adminAddProduct() {
+            const name = document.getElementById('adm-prod-name').value;
+            const price = document.getElementById('adm-prod-price').value;
+            const description = document.getElementById('adm-prod-desc').value;
+            if(!name || !price) return showToast('Vui lòng nhập tên và giá sản phẩm!', 'error');
+            
+            await fetch('/api/admin/product/add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name, price: Number(price), description })
+            });
+            showToast('Tạo sản phẩm mới thành công!');
+            document.getElementById('adm-prod-name').value = '';
+            document.getElementById('adm-prod-price').value = '';
+            document.getElementById('adm-prod-desc').value = '';
+            loadAdminData();
+            loadProducts();
+        }
+
+        async function deleteProduct(id) {
+            if(!confirm('Xoá sản phẩm này sẽ xoá toàn bộ key liên quan?')) return;
+            await fetch(`/api/admin/product/${id}`, { method: 'DELETE' });
+            showToast('Đã xoá sản phẩm thành công!');
+            loadAdminData();
+            loadProducts();
+        }
+
+        async function addKeys(productId) {
+            const keys = document.getElementById(`keys-input-${productId}`).value;
+            if(!keys.trim()) return showToast('Vui lòng nhập nội dung key!', 'error');
+            
+            await fetch('/api/admin/key/add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ product_id: productId, keys })
+            });
+            showToast('Thêm key vào kho thành công!');
+            document.getElementById(`keys-input-${productId}`).value = '';
+            loadProducts();
+            loadAdminData();
+        }
+
+        async function updateBankQR() {
+            const bank_qr = document.getElementById('admin-bank-url').value;
+            await fetch('/api/admin/settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ bank_qr })
+            });
+            showToast('Cập nhật link QR Ngân hàng thành công!');
+            loadSettings();
+        }
+
+        function switchTab(tab) {
+            ['shop', 'deposit', 'history', 'admin'].forEach(t => {
+                document.getElementById(`section-${t}`).classList.add('hidden');
+                const btnTab = document.getElementById(`tab-${t}`);
+                if(btnTab) btnTab.className = "flex-1 py-2 rounded-xl text-slate-600 hover:text-pink-600 transition";
+            });
+            document.getElementById(`section-${tab}`).classList.remove('hidden');
+            if(tab !== 'admin') {
+                const btn = document.getElementById(`tab-${tab}`);
+                if(btn) btn.className = "flex-1 py-2 rounded-xl bg-white text-pink-600 font-bold shadow-sm transition";
+            } else {
+                if (!adminNotified) {
+                    showToast('Chào mừng Admin quay trở lại bảng điều khiển! 💖', 'admin');
+                    adminNotified = true;
+                }
+                loadAdminData();
+            }
+            if(tab === 'history') loadHistory();
+        }
+
+        initData();
+    </script>
+</body>
+</html>
