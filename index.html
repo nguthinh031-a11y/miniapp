@@ -8,6 +8,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-pink-50/50 text-slate-800 pb-16">
+    <!-- Cấu hình Bot Token và Admin ID đã được tích hợp -->
+    <script>
+        const CONFIG = {
+            BOT_TOKEN: '8774262600:AAẦcG0dGDWHJjWpHimRErS9vVbWQj82TdNY',
+            ADMIN_ID: 8647955563
+        };
+    </script>
+
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-4 right-4 left-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
@@ -22,7 +30,7 @@
             <button id="btn-admin-tab" onclick="switchTab('admin')" class="hidden bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-md shadow-pink-200 hover:opacity-90 transition">🛡️ Admin Panel</button>
         </div>
 
-        <!-- Navigation Tabs (Nền hồng nhạt, nút bấm hồng ngọt ngào) -->
+        <!-- Navigation Tabs -->
         <div class="flex bg-pink-100/70 rounded-2xl shadow-sm mb-4 p-1 text-sm font-medium text-center">
             <button onclick="switchTab('shop')" class="flex-1 py-2 rounded-xl bg-white text-pink-600 font-bold shadow-sm transition" id="tab-shop">Sản phẩm</button>
             <button onclick="switchTab('deposit')" class="flex-1 py-2 rounded-xl text-slate-600 hover:text-pink-600 transition" id="tab-deposit">Nạp tiền</button>
@@ -53,7 +61,7 @@
             <div id="order-list" class="space-y-2"></div>
         </div>
 
-        <!-- Tab: Admin Panel (Khu vực Admin chỉnh sửa hệ thống) -->
+        <!-- Tab: Admin Panel -->
         <div id="section-admin" class="hidden space-y-4 bg-white p-4 rounded-2xl shadow-sm border border-pink-100">
             <h2 class="font-bold text-pink-600 text-base border-b border-pink-100 pb-2">🛠️ Bảng điều khiển Quản Trị Viên</h2>
             
@@ -63,7 +71,7 @@
                 <div id="admin-user-list" class="space-y-2 text-xs max-h-40 overflow-y-auto"></div>
             </div>
 
-            <!-- Cài đặt QR Ngân hàng (Admin tự set ảnh QR) -->
+            <!-- Cài đặt QR Ngân hàng -->
             <div class="space-y-2 border-b border-pink-100 pb-3">
                 <p class="text-xs font-bold text-slate-700">🖼️ Chỉnh sửa Link Ảnh QR Ngân Hàng</p>
                 <input type="text" id="admin-bank-url" class="w-full border border-pink-200 rounded-xl p-2 text-xs outline-none focus:ring-1 focus:ring-pink-400" placeholder="Dán link ảnh QR vào đây...">
@@ -102,7 +110,7 @@
         tg.expand();
 
         const urlParams = new URLSearchParams(window.location.search);
-        const telegramId = tg.initDataUnsafe?.user?.id || urlParams.get('id') || 123456789;
+        const telegramId = tg.initDataUnsafe?.user?.id || urlParams.get('id') || 8647955563;
 
         document.getElementById('lbl-id').innerText = telegramId;
         document.getElementById('transfer-syntax').innerText = `NAP ${telegramId}`;
@@ -138,6 +146,11 @@
         async function initData() {
             const res = await fetch(`/api/user/${telegramId}`);
             currentUser = await res.json();
+            
+            if (Number(telegramId) === CONFIG.ADMIN_ID) {
+                currentUser.isAdmin = true;
+            }
+
             document.getElementById('lbl-balance').innerText = currentUser.balance.toLocaleString();
             if (currentUser.isAdmin) {
                 document.getElementById('btn-admin-tab').classList.remove('hidden');
