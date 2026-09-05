@@ -139,12 +139,38 @@
 
     <!-- Script Logic -->
     <script>
-        // --- CẤU HÌNH BOT TELEGRAM ---
-        const ADMIN_IDS = [8647955563]; // Danh sách Telegram ID của Admin
-        const BOT_TOKEN = '8774262600:AAFcG0dGDWHJjWpHimRErS9vVbWQj82TdNY'; // Token Bot của bạn[span_2](start_span)[span_2](end_span)
+        const ADMIN_IDS = [8647955563]; // ID Telegram của Admin
+        const BOT_TOKEN = '8774262600:AAFcG0dGDWHJjWpHimRErS9vVbWQj82TdNY'; // Bot Token của bạn[span_1](start_span)[span_1](end_span)
 
-        // Hàm hỗ trợ gọi API Telegram Bot đẩy thông báo về chat ID[span_3](start_span)[span_3](end_span)
-        async function sendTelegramNotification(chatId, textMessage) {
+        // Gửi thông báo kèm nút bấm Inline Keyboard về Telegram cho Admin[span_2](start_span)[span_2](end_span)
+        async function sendDepositNotificationToAdmin(depositObj) {
+            if (!BOT_TOKEN) return;
+            try {
+                let url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+                for (let adminId of ADMIN_IDS) {
+                    await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: adminId,
+                            text: `🔔 <b>Yêu cầu nạp tiền mới!</b>\n- Khách: ${depositObj.userName}\n- ID: <code>${depositObj.userId}</code>\n- Số tiền: <b>${depositObj.amount.toLocaleString()}đ</b>`,
+                            parse_mode: 'HTML',
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [
+                                        { text: `✅ Duyệt +${depositObj.amount.toLocaleString()}đ`, callback_data: `approve_${depositObj.id}` }
+                                    ]
+                                ]
+                            }
+                        })
+                    });
+                }
+            } catch (error) {
+                console.error("Lỗi gửi thông báo Telegram:", error);
+            }
+        }
+
+        async function sendTelegramMessage(chatId, textMessage) {
             if (!BOT_TOKEN) return;
             try {
                 let url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
@@ -158,7 +184,7 @@
                     })
                 });
             } catch (error) {
-                console.error("Lỗi gửi thông báo Telegram:", error);
+                console.error("Lỗi gửi tin nhắn Telegram:", error);
             }
         }
 
@@ -313,14 +339,7 @@
             renderUI();
 
             alert(`Mua hàng thành công!\nKey của bạn: ${assignedKey}`);
-
-            // Gửi thông báo về cho chính user vừa mua
-            sendTelegramNotification(currentUser.id, `🎉 <b>Mua hàng thành công!</b>\n- Sản phẩm: ${prod.name}\n- Giá: ${prod.price.toLocaleString()}đ\n- Key: <code>${assignedKey}</code>`);
-
-            // Gửi thông báo về cho toàn bộ Admin
-            ADMIN_IDS.forEach(adminId => {
-                sendTelegramNotification(adminId, `🛒 <b>Có đơn hàng mới!</b>\n- Khách: ${currentUser.first_name} (ID: ${currentUser.id})\n- Mua: ${prod.name}\n- Giá: ${prod.price.toLocaleString()}đ`);
-            });
+            sendTelegramMessage(currentUser.id, `🎉 <b>Mua hàng thành công!</b>\n- Sản phẩm: ${prod.name}\n- Giá: ${prod.price.toLocaleString()}đ\n- Key: <code>${assignedKey}</code>`);
         }
 
         function renderHistory() {
@@ -369,10 +388,8 @@
             amountInput.value = '';
             alert('Đã gửi yêu cầu nạp tiền! Vui lòng chờ Admin duyệt.');
 
-            // Gửi thông báo yêu cầu nạp tiền tới Admin
-            ADMIN_IDS.forEach(adminId => {
-                sendTelegramNotification(adminId, `🔔 <b>Yêu cầu nạp tiền mới!</b>\n- Khách: ${currentUser.first_name} (ID: ${currentUser.id})\n- Số tiền: ${amount.toLocaleString()}đ`);
-            });
+            // Gửi thông báo kèm nút duyệt về Telegram của Admin[span_3](start_span)[span_3](end_span)
+            sendDepositNotificationToAdmin(depositReq);
         }
 
         // --- ADMIN FUNCTIONS ---
@@ -449,9 +466,8 @@
             db.deposits.splice(idx, 1);
             saveDB(db);
             alert(`Đã duyệt nạp thành công ${dep.amount.toLocaleString()}đ cho user ID: ${dep.userId}`);
-
-            // Gửi thông báo số dư đã được cộng về cho người dùng
-            sendTelegramNotification(dep.userId, `✅ <b>Tài khoản đã được nạp tiền!</b>\nSố tiền: +${dep.amount.toLocaleString()}đ đã được cộng vào số dư của bạn.`);
+            
+            sendTelegramMessage(dep.userId, `✅ <b>Tài khoản đã được cộng tiền!</b>\nSố dư: +${dep.amount.toLocaleString()}đ đã được cộng thành công.`);
         }
 
         function adminSaveNotice() {
