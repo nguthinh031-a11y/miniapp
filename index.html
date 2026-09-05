@@ -8,13 +8,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
-        // Cấu hình màu sắc chủ đạo Hồng & Đen
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         brand: {
-                            500: '#db2777', // Hồng chủ đạo (Pink 600)
+                            500: '#db2777',
                             600: '#be185d',
                             700: '#9d174d',
                         }
@@ -26,7 +25,7 @@
 </head>
 <body class="bg-black text-slate-100 font-sans antialiased pb-24">
 
-    <!-- MODAL THÔNG BÁO TOÀN MÀN HÌNH KHI VÀO WEB -->
+    <!-- MODAL THÔNG BÁO TOÀN MÀN HÌNH -->
     <div id="welcome-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-brand-500/30 rounded-3xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl shadow-brand-500/10">
             <div class="w-12 h-12 bg-brand-500/20 text-brand-500 rounded-2xl mx-auto flex items-center justify-center text-xl">
@@ -69,9 +68,7 @@
         <!-- TAB: SHOP -->
         <div id="view-shop" class="space-y-4">
             <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Danh Sách Sản Phẩm</h2>
-            <div id="product-list" class="space-y-3">
-                <!-- Rendered dynamically -->
-            </div>
+            <div id="product-list" class="space-y-3"></div>
         </div>
 
         <!-- TAB: PROFILE & RECHARGE -->
@@ -82,9 +79,7 @@
                 <div class="bg-white p-3 rounded-2xl flex justify-center">
                     <img id="qr-bank-img" src="" alt="QR Ngân Hàng" class="w-48 h-48 object-contain">
                 </div>
-                <div id="bank-info-box" class="text-xs text-slate-300 space-y-1 bg-black p-3 rounded-2xl border border-slate-800">
-                    <!-- Bank info -->
-                </div>
+                <div id="bank-info-box" class="text-xs text-slate-300 space-y-1 bg-black p-3 rounded-2xl border border-slate-800"></div>
                 <div>
                     <input type="number" id="deposit-amount" placeholder="Nhập số tiền đã chuyển (VNĐ)" class="w-full bg-black border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 mb-2">
                     <button onclick="requestDeposit()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-brand-500/20">
@@ -114,7 +109,6 @@
 
         <!-- TAB: ADMIN PANEL -->
         <div id="view-admin" class="hidden space-y-4">
-            <!-- Thêm Sản Phẩm -->
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 space-y-3">
                 <h3 class="text-sm font-bold text-brand-400">Thêm Sản Phẩm Mới</h3>
                 <input type="text" id="admin-prod-name" placeholder="Tên sản phẩm" class="w-full bg-black border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
@@ -122,23 +116,16 @@
                 <button onclick="adminAddProduct()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2.5 rounded-xl text-xs transition">Thêm Sản Phẩm</button>
             </div>
 
-            <!-- Duyệt Nạp Tiền -->
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 space-y-3">
                 <h3 class="text-sm font-bold text-brand-400">Duyệt Yêu Cầu Nạp Tiền</h3>
-                <div id="admin-deposit-requests" class="space-y-2">
-                    <!-- Rendered dynamically -->
-                </div>
+                <div id="admin-deposit-requests" class="space-y-2"></div>
             </div>
 
-            <!-- Quản Lý Kho Key & Xóa Sản Phẩm -->
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 space-y-3">
                 <h3 class="text-sm font-bold text-brand-400">Quản Lý Sản Phẩm & Key</h3>
-                <div id="admin-product-management" class="space-y-3">
-                    <!-- Rendered dynamically -->
-                </div>
+                <div id="admin-product-management" class="space-y-3"></div>
             </div>
 
-            <!-- Cài Đặt Thông Báo & Ngân Hàng -->
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 space-y-3">
                 <h3 class="text-sm font-bold text-brand-400">Cấu Hình Hệ Thống</h3>
                 <div>
@@ -146,25 +133,34 @@
                     <textarea id="admin-input-notice" rows="3" class="w-full bg-black border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 mb-2"></textarea>
                     <button onclick="adminSaveNotice()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl text-xs transition">Lưu Thông Báo</button>
                 </div>
-                <div class="pt-2">
-                    <label class="text-xs text-slate-400 block mb-1">Link Ảnh QR Ngân Hàng:</label>
-                    <input type="text" id="admin-input-qr" class="w-full bg-black border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 mb-2">
-                    <label class="text-xs text-slate-400 block mb-1">Thông Tin Ngân Hàng:</label>
-                    <textarea id="admin-input-bankinfo" rows="2" class="w-full bg-black border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 mb-2"></textarea>
-                    <button onclick="adminSaveBank()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl text-xs transition">Lưu Cấu Hình Ngân Hàng</button>
-                </div>
             </div>
         </div>
-
     </main>
 
     <!-- Script Logic -->
     <script>
-        // --- ĐỔI ID ADMIN CỦA BẠN TẠI ĐÂY (Dòng dưới) ---
-        const ADMIN_IDS = [8647955563]; 
-        
-        // Cấu hình Telegram Bot Token & Username (Nếu chạy backend bot riêng)
-        const BOT_TOKEN = '8774262600:AAFcG0dGDWHJjWpHimRErS9vVbWQj82TdNY'; 
+        // --- CẤU HÌNH BOT TELEGRAM ---
+        const ADMIN_IDS = [8647955563]; // Danh sách Telegram ID của Admin
+        const BOT_TOKEN = '8774262600:AAFcG0dGDWHJjWpHimRErS9vVbWQj82TdNY'; // Token Bot của bạn[span_2](start_span)[span_2](end_span)
+
+        // Hàm hỗ trợ gọi API Telegram Bot đẩy thông báo về chat ID[span_3](start_span)[span_3](end_span)
+        async function sendTelegramNotification(chatId, textMessage) {
+            if (!BOT_TOKEN) return;
+            try {
+                let url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+                await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: textMessage,
+                        parse_mode: 'HTML'
+                    })
+                });
+            } catch (error) {
+                console.error("Lỗi gửi thông báo Telegram:", error);
+            }
+        }
 
         const defaultData = {
             products: [
@@ -172,7 +168,7 @@
                 { id: 'p2', name: 'Key Bản Quyền Vĩnh Viễn', price: 200000, keys: ['KEY-VVIP-9999'] }
             ],
             users: {},
-            deposits: [], // Yêu cầu nạp tiền chờ duyệt
+            deposits: [], 
             notice: 'Chào mừng bạn đến với Mini App cửa hàng tự động! Chúc bạn mua sắm vui vẻ.',
             qrCode: 'https://api.vietqr.io/image/970422-123456789-nCv96hy.jpg?accountName=NGUYEN%20VAN%20A',
             bankInfo: 'Ngân hàng: MB Bank\nSTK: 123456789\nChủ TK: NGUYEN VAN A',
@@ -190,13 +186,14 @@
 
         function saveDB(data) {
             localStorage.setItem('miniapp_db_pink', JSON.stringify(data));
+            window.dispatchEvent(new Event('storage_updated'));
         }
 
         let tg = window.Telegram.WebApp;
-        tg.expand();
+        try { tg.expand(); } catch(e) {}
 
         let currentUser = {
-            id: tg.initDataUnsafe?.user?.id || 123456789, // Mặc định chạy thử nghiệm ngoài Telegram
+            id: tg.initDataUnsafe?.user?.id || 8647955563, 
             first_name: tg.initDataUnsafe?.user?.first_name || 'Khách Hàng',
             username: tg.initDataUnsafe?.user?.username || 'guest'
         };
@@ -204,10 +201,7 @@
         function initUser() {
             let db = getDB();
             if (!db.users[currentUser.id]) {
-                db.users[currentUser.id] = {
-                    balance: 0,
-                    history: []
-                };
+                db.users[currentUser.id] = { balance: 0, history: [] };
                 saveDB(db);
             }
         }
@@ -215,18 +209,18 @@
         function renderUI() {
             initUser();
             let db = getDB();
-            let uData = db.users[currentUser.id];
+            let uData = db.users[currentUser.id] || { balance: 0, history: [] };
 
             document.getElementById('user-name').innerText = currentUser.first_name;
             document.getElementById('user-id').innerText = currentUser.id;
-            document.getElementById('user-balance').innerText = uData.balance.toLocaleString('vi-VN') + ' đ';
+            document.getElementById('user-balance').innerText = (uData.balance || 0).toLocaleString('vi-VN') + ' đ';
 
-            // Check Admin
             if (ADMIN_IDS.includes(Number(currentUser.id))) {
                 document.getElementById('tab-admin').classList.remove('hidden');
+            } else {
+                document.getElementById('tab-admin').classList.add('hidden');
             }
 
-            // Hiển thị Popup Thông báo toàn màn hình khi vừa mở
             if (db.notice && !sessionStorage.getItem('notified')) {
                 document.getElementById('modal-notice-content').innerText = db.notice;
                 document.getElementById('welcome-modal').classList.remove('hidden');
@@ -248,7 +242,8 @@
 
         function switchTab(tab) {
             ['shop', 'profile', 'support', 'admin'].forEach(t => {
-                document.getElementById(`view-${t}`).classList.add('hidden');
+                let el = document.getElementById(`view-${t}`);
+                if(el) el.classList.add('hidden');
                 let btn = document.getElementById(`tab-${t}`);
                 if(btn) {
                     btn.classList.remove('bg-brand-500', 'text-white', 'shadow-md', 'text-brand-400');
@@ -256,7 +251,9 @@
                 }
             });
 
-            document.getElementById(`view-${tab}`).classList.remove('hidden');
+            let targetView = document.getElementById(`view-${tab}`);
+            if(targetView) targetView.classList.remove('hidden');
+            
             let activeTab = document.getElementById(`tab-${tab}`);
             if (activeTab) {
                 activeTab.classList.add('bg-brand-500', 'text-white', 'shadow-md');
@@ -269,13 +266,13 @@
             let container = document.getElementById('product-list');
             container.innerHTML = '';
 
-            if (db.products.length === 0) {
+            if (!db.products || db.products.length === 0) {
                 container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Hiện chưa có sản phẩm nào.</p>';
                 return;
             }
 
             db.products.forEach(prod => {
-                let count = prod.keys.length;
+                let count = prod.keys ? prod.keys.length : 0;
                 container.innerHTML += `
                     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 flex justify-between items-center">
                         <div>
@@ -297,7 +294,7 @@
             let prod = db.products.find(p => p.id === prodId);
 
             if (!prod) return alert('Sản phẩm không tồn tại!');
-            if (prod.keys.length === 0) return alert('Sản phẩm đã hết key!');
+            if (!prod.keys || prod.keys.length === 0) return alert('Sản phẩm đã hết key trong kho!');
             if (uData.balance < prod.price) return alert('Số dư không đủ, vui lòng nạp thêm tiền!');
 
             uData.balance -= prod.price;
@@ -309,14 +306,21 @@
                 price: prod.price,
                 key: assignedKey
             };
+            
+            if(!uData.history) uData.history = [];
             uData.history.unshift(historyItem);
             saveDB(db);
-
             renderUI();
-            alert(`Mua hàng thành công!\nKey của bạn: ${assignedKey}\n(Đã được lưu tại mục Lịch sử cá nhân).`);
-            
-            // Gửi key về chat bot Telegram qua API (nếu tích hợp Backend)
-            console.log(`[Bot Telegram] Gửi Key ${assignedKey} đến chat ID: ${currentUser.id}`);
+
+            alert(`Mua hàng thành công!\nKey của bạn: ${assignedKey}`);
+
+            // Gửi thông báo về cho chính user vừa mua
+            sendTelegramNotification(currentUser.id, `🎉 <b>Mua hàng thành công!</b>\n- Sản phẩm: ${prod.name}\n- Giá: ${prod.price.toLocaleString()}đ\n- Key: <code>${assignedKey}</code>`);
+
+            // Gửi thông báo về cho toàn bộ Admin
+            ADMIN_IDS.forEach(adminId => {
+                sendTelegramNotification(adminId, `🛒 <b>Có đơn hàng mới!</b>\n- Khách: ${currentUser.first_name} (ID: ${currentUser.id})\n- Mua: ${prod.name}\n- Giá: ${prod.price.toLocaleString()}đ`);
+            });
         }
 
         function renderHistory() {
@@ -324,7 +328,7 @@
             let uData = db.users[currentUser.id];
             let container = document.getElementById('transaction-history');
             
-            if (!uData.history || uData.history.length === 0) {
+            if (!uData || !uData.history || uData.history.length === 0) {
                 container.innerHTML = '<p class="text-xs text-slate-500">Chưa có lịch sử giao dịch.</p>';
                 return;
             }
@@ -335,7 +339,7 @@
                     <div class="bg-black p-3 rounded-2xl border border-slate-800 space-y-1">
                         <div class="flex justify-between font-bold text-slate-200">
                             <span>${item.name}</span>
-                            <span class="text-brand-500">-${item.price.toLocaleString('vi-VN')}đ</span>
+                            <span class="text-brand-500">${item.price > 0 ? '-' + item.price.toLocaleString('vi-VN') + 'đ' : ''}</span>
                         </div>
                         <p class="text-[10px] text-slate-400">${item.time}</p>
                         <p class="text-xs font-mono bg-slate-900 p-2 rounded-xl text-brand-400 select-all">Key: ${item.key}</p>
@@ -345,7 +349,8 @@
         }
 
         function requestDeposit() {
-            let amount = Number(document.getElementById('deposit-amount').value);
+            let amountInput = document.getElementById('deposit-amount');
+            let amount = Number(amountInput.value);
             if (!amount || amount <= 0) return alert('Vui lòng nhập số tiền hợp lệ!');
 
             let db = getDB();
@@ -357,66 +362,73 @@
                 time: new Date().toLocaleString('vi-VN')
             };
 
+            if(!db.deposits) db.deposits = [];
             db.deposits.push(depositReq);
             saveDB(db);
 
-            document.getElementById('deposit-amount').value = '';
+            amountInput.value = '';
             alert('Đã gửi yêu cầu nạp tiền! Vui lòng chờ Admin duyệt.');
 
-            // Giả lập gửi thông báo yêu cầu nạp tiền về chat Bot của Admin
-            console.log(`[Bot Telegram -> Admin] Khách hàng ${currentUser.first_name} (ID: ${currentUser.id}) vừa yêu cầu nạp ${amount.toLocaleString()}đ`);
+            // Gửi thông báo yêu cầu nạp tiền tới Admin
+            ADMIN_IDS.forEach(adminId => {
+                sendTelegramNotification(adminId, `🔔 <b>Yêu cầu nạp tiền mới!</b>\n- Khách: ${currentUser.first_name} (ID: ${currentUser.id})\n- Số tiền: ${amount.toLocaleString()}đ`);
+            });
         }
 
         // --- ADMIN FUNCTIONS ---
         function adminAddProduct() {
-            let name = document.getElementById('admin-prod-name').value.trim();
-            let price = Number(document.getElementById('admin-prod-price').value);
-            if (!name || !price) return alert('Vui lòng điền đủ thông tin!');
+            let nameInput = document.getElementById('admin-prod-name');
+            let priceInput = document.getElementById('admin-prod-price');
+            let name = nameInput.value.trim();
+            let price = Number(priceInput.value);
+            
+            if (!name || !price) return alert('Vui lòng điền đủ thông tin sản phẩm!');
 
             let db = getDB();
+            if(!db.products) db.products = [];
             db.products.push({ id: 'p_' + Date.now(), name: name, price: price, keys: [] });
+            
             saveDB(db);
-            document.getElementById('admin-prod-name').value = '';
-            document.getElementById('admin-prod-price').value = '';
-            renderUI();
+            nameInput.value = '';
+            priceInput.value = '';
             alert('Thêm sản phẩm thành công!');
         }
 
         function adminDeleteProduct(prodId) {
-            if (!confirm('Xóa sản phẩm này?')) return;
+            if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
             let db = getDB();
             db.products = db.products.filter(p => p.id !== prodId);
             saveDB(db);
-            renderUI();
         }
 
         function adminAddKey(prodId) {
             let keyInput = prompt('Nhập danh sách key (mỗi key 1 dòng hoặc cách nhau bằng dấu phẩy):');
             if (!keyInput) return;
             let keys = keyInput.split(/[\n,]+/).map(k => k.trim()).filter(k => k);
+            if(keys.length === 0) return;
             
             let db = getDB();
             let prod = db.products.find(p => p.id === prodId);
             if (prod) {
+                if(!prod.keys) prod.keys = [];
                 prod.keys.push(...keys);
                 saveDB(db);
-                renderUI();
-                alert(`Đã thêm ${keys.length} key!`);
+                alert(`Đã thêm thành công ${keys.length} key!`);
             }
         }
 
         function adminRemoveKey(prodId, index) {
             let db = getDB();
             let prod = db.products.find(p => p.id === prodId);
-            if (prod) {
+            if (prod && prod.keys) {
                 prod.keys.splice(index, 1);
                 saveDB(db);
-                renderUI();
             }
         }
 
         function adminApproveDeposit(depId) {
             let db = getDB();
+            if(!db.deposits) return;
             let idx = db.deposits.findIndex(d => d.id === depId);
             if (idx === -1) return;
 
@@ -425,10 +437,8 @@
                 db.users[dep.userId] = { balance: 0, history: [] };
             }
 
-            // Cộng tiền vào đúng ID người dùng Telegram của khách
             db.users[dep.userId].balance += dep.amount;
-            
-            // Ghi lịch sử giao dịch nạp cho khách
+            if(!db.users[dep.userId].history) db.users[dep.userId].history = [];
             db.users[dep.userId].history.unshift({
                 time: new Date().toLocaleString('vi-VN'),
                 name: `Nạp Tiền Thành Công (+${dep.amount.toLocaleString()}đ)`,
@@ -436,14 +446,12 @@
                 key: 'Đã duyệt qua hệ thống tự động'
             });
 
-            // Xóa yêu cầu sau khi duyệt
             db.deposits.splice(idx, 1);
             saveDB(db);
-            renderUI();
             alert(`Đã duyệt nạp thành công ${dep.amount.toLocaleString()}đ cho user ID: ${dep.userId}`);
 
-            // Gửi thông báo về bot người dùng
-            console.log(`[Bot Telegram -> User ${dep.userId}] Tài khoản của bạn đã được cộng ${dep.amount.toLocaleString()}đ`);
+            // Gửi thông báo số dư đã được cộng về cho người dùng
+            sendTelegramNotification(dep.userId, `✅ <b>Tài khoản đã được nạp tiền!</b>\nSố tiền: +${dep.amount.toLocaleString()}đ đã được cộng vào số dư của bạn.`);
         }
 
         function adminSaveNotice() {
@@ -451,81 +459,75 @@
             let db = getDB();
             db.notice = notice;
             saveDB(db);
-            renderUI();
             alert('Đã cập nhật thông báo toàn màn hình!');
-        }
-
-        function adminSaveBank() {
-            let qr = document.getElementById('admin-input-qr').value;
-            let bank = document.getElementById('admin-input-bankinfo').value;
-            let db = getDB();
-            if (qr) db.qrCode = qr;
-            if (bank) db.bankInfo = bank;
-            saveDB(db);
-            renderUI();
-            alert('Đã lưu cấu hình ngân hàng!');
         }
 
         function renderAdminPanel() {
             let db = getDB();
-            document.getElementById('admin-input-notice').value = db.notice;
-            document.getElementById('admin-input-qr').value = db.qrCode;
-            document.getElementById('admin-input-bankinfo').value = db.bankInfo;
+            let noticeEl = document.getElementById('admin-input-notice');
+            if(noticeEl) noticeEl.value = db.notice || '';
 
-            // Render danh sách yêu cầu nạp tiền chờ duyệt
             let depContainer = document.getElementById('admin-deposit-requests');
-            depContainer.innerHTML = '';
-            if (db.deposits.length === 0) {
-                depContainer.innerHTML = '<p class="text-xs text-slate-500">Không có yêu cầu nạp tiền nào chờ duyệt.</p>';
-            } else {
-                db.deposits.forEach(dep => {
-                    depContainer.innerHTML += `
-                        <div class="bg-black p-3 rounded-2xl border border-brand-500/20 flex justify-between items-center">
-                            <div>
-                                <p class="font-bold text-xs text-white">${dep.userName} <span class="text-slate-400 font-normal">(ID: ${dep.userId})</span></p>
-                                <p class="text-brand-500 font-bold text-xs mt-0.5">+${dep.amount.toLocaleString('vi-VN')} đ</p>
-                                <p class="text-[10px] text-slate-400">${dep.time}</p>
+            if(depContainer) {
+                depContainer.innerHTML = '';
+                if (!db.deposits || db.deposits.length === 0) {
+                    depContainer.innerHTML = '<p class="text-xs text-slate-500">Không có yêu cầu nạp tiền nào chờ duyệt.</p>';
+                } else {
+                    db.deposits.forEach(dep => {
+                        depContainer.innerHTML += `
+                            <div class="bg-black p-3 rounded-2xl border border-brand-500/20 flex justify-between items-center">
+                                <div>
+                                    <p class="font-bold text-xs text-white">${dep.userName} <span class="text-slate-400 font-normal">(ID: ${dep.userId})</span></p>
+                                    <p class="text-brand-500 font-bold text-xs mt-0.5">+${dep.amount.toLocaleString('vi-VN')} đ</p>
+                                    <p class="text-[10px] text-slate-400">${dep.time}</p>
+                                </div>
+                                <button onclick="adminApproveDeposit('${dep.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                                    Duyệt
+                                </button>
                             </div>
-                            <button onclick="adminApproveDeposit('${dep.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
-                                Duyệt
-                            </button>
+                        `;
+                    });
+                }
+            }
+
+            let container = document.getElementById('admin-product-management');
+            if(container) {
+                container.innerHTML = '';
+                if(!db.products || db.products.length === 0) {
+                    container.innerHTML = '<p class="text-xs text-slate-500">Chưa có sản phẩm nào trong hệ thống.</p>';
+                    return;
+                }
+                db.products.forEach(prod => {
+                    let keysHtml = (prod.keys || []).map((k, idx) => `
+                        <div class="flex justify-between items-center bg-black px-2.5 py-1.5 rounded-xl text-[11px] mb-1">
+                            <span class="font-mono text-slate-300 truncate max-w-[170px]">${k}</span>
+                            <button onclick="adminRemoveKey('${prod.id}', ${idx})" class="text-rose-400 hover:text-rose-300 ml-2">Xóa</button>
+                        </div>
+                    `).join('');
+
+                    container.innerHTML += `
+                        <div class="bg-black border border-slate-800 rounded-2xl p-3 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold text-xs text-white">${prod.name}</h4>
+                                    <p class="text-[10px] text-slate-400">Giá: ${prod.price.toLocaleString('vi-VN')}đ | Kho: ${(prod.keys || []).length}</p>
+                                </div>
+                                <div class="space-x-1">
+                                    <button onclick="adminAddKey('${prod.id}')" class="bg-brand-500 hover:bg-brand-600 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-bold">Thêm Key</button>
+                                    <button onclick="adminDeleteProduct('${prod.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-bold">Xóa SP</button>
+                                </div>
+                            </div>
+                            <div class="max-h-28 overflow-y-auto space-y-1 mt-2">
+                                ${keysHtml || '<p class="text-[10px] text-slate-500">Chưa có key.</p>'}
+                            </div>
                         </div>
                     `;
                 });
             }
-
-            // Render sản phẩm & kho key
-            let container = document.getElementById('admin-product-management');
-            container.innerHTML = '';
-            db.products.forEach(prod => {
-                let keysHtml = prod.keys.map((k, idx) => `
-                    <div class="flex justify-between items-center bg-black px-2.5 py-1.5 rounded-xl text-[11px] mb-1">
-                        <span class="font-mono text-slate-300 truncate max-w-[170px]">${k}</span>
-                        <button onclick="adminRemoveKey('${prod.id}', ${idx})" class="text-rose-400 hover:text-rose-300 ml-2">Xóa</button>
-                    </div>
-                `).join('');
-
-                container.innerHTML += `
-                    <div class="bg-black border border-slate-800 rounded-2xl p-3 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h4 class="font-bold text-xs text-white">${prod.name}</h4>
-                                <p class="text-[10px] text-slate-400">Giá: ${prod.price.toLocaleString('vi-VN')}đ | Kho: ${prod.keys.length}</p>
-                            </div>
-                            <div class="space-x-1">
-                                <button onclick="adminAddKey('${prod.id}')" class="bg-brand-500 hover:bg-brand-600 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-bold">Thêm Key</button>
-                                <button onclick="adminDeleteProduct('${prod.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-bold">Xóa SP</button>
-                            </div>
-                        </div>
-                        <div class="max-h-28 overflow-y-auto space-y-1 mt-2">
-                            ${keysHtml || '<p class="text-[10px] text-slate-500">Chưa có key.</p>'}
-                        </div>
-                    </div>
-                `;
-            });
         }
 
-        window.onload = renderUI;
+        window.addEventListener('storage_updated', () => { renderUI(); });
+        window.onload = function() { renderUI(); };
     </script>
 </body>
 </html>
